@@ -1,28 +1,9 @@
 const fs = require('fs');
+const { parse } = require('path');
 const path = require('path');
-
-function updateBook (req, res) {
-   const fp= path.join( __dirname , "../../" , "database/library.json")
-    fs.readFile( fp, 'utf8', function (err, data) {
-        const Books= JSON.parse( data );
-        const book=Books.find((c)=>c.id === parseInt(req.params.id));
-        if (!book) {
-            res.status(404).send("This book id is not found");
-          } else {
-       let updatedData ={ 
-        id: book.id ,
-         title: req.body.title || book.title ,
-        author:req.body.author || book.author
-       } 
-       const index=Books.indexOf(book);
-      Books.splice(index, 1,updatedData);
-       fs.writeFile( fp , JSON.stringify(Books), (err) => {
-        if (err) {
-            throw err;
-        }
-        console.log("JSON data is saved.");
-        res.send(Books)
-    });
-    }});
+const { ub } = require('./queries');
+async function updateBook (req, res) {
+    const id=parseInt(req.params.id);
+    res.json({obj:(await ub(id)).rows[0],msg:"the book has been updated successfully"});
  }
 module.exports={updateBook};
